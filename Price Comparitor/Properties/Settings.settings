@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Price_Comparitor.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="commission" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.15</Value>
+    </Setting>
+    <Setting Name="amazonFee" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">1.35</Value>
+    </Setting>
+    <Setting Name="fbaFee" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">1.42</Value>
+    </Setting>
+    <Setting Name="thrdPtyFee" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.1</Value>
+    </Setting>
+    <Setting Name="minProfit" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
