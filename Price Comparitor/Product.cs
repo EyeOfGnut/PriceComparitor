@@ -20,8 +20,13 @@ namespace Price_Comparitor
         private const string HREFKEY = "href";
 
         private const string HTMLERROR = "HTML_Error";
-        private const string headers_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"; //pulled from FireBug
-        private const string headers_agent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; de; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12";
+        //private const string headers_accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"; //pulled from FireBug
+        //private const string headers_agent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; de; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12";
+
+        private const string headers_agent = "Lynx/2.8.5rel.1 libwww-FM/2.14"; // emulate Lynx - text only, no ssl.
+        private const string headers_accept = "text/plain";
+
+
         //private string headers_mobile_agent = "Mozilla/5.0 (Linux; U; Android 3.0; en-us; Xoom Build/HRI39) AppleWebKit/525.10 (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2";
         
         private StringBuilder csvString;
