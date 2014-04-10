@@ -35,8 +35,8 @@ namespace Price_Comparitor
 
 
             svrs.Add(new Server("Amazon.com", "http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=", float.Parse("1.35")));
-            svrs.Add(new Server("Amazon.ca", "http://www.amazon.ca/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=", float.Parse("1.35"), "CAD", false));
-            svrs.Add(new Server("Amazon.co.jp", "http://www.amazon.co.jp/s/ref=nb_sb_noss?__mk_ja_JP=%83J%83%5E%83J%83i&url=search-alias%3Daps&field-keywords=", float.Parse("1.35"), "JPY", false));
+            //svrs.Add(new Server("Amazon.ca", "http://www.amazon.ca/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=", float.Parse("1.35"), "CAD", false));
+            //svrs.Add(new Server("Amazon.co.jp", "http://www.amazon.co.jp/s/ref=nb_sb_noss?__mk_ja_JP=%83J%83%5E%83J%83i&url=search-alias%3Daps&field-keywords=", float.Parse("1.35"), "JPY", false));
             //svrs.Add(new Server("Mobile Amazon", "http://www.amazon.com/gp/aw/s/ref=is_box_?k=", float.Parse("1.35")));
 
             bgWorker = new BackgroundWorker();
@@ -101,7 +101,9 @@ namespace Price_Comparitor
 
                     if (((BackgroundWorker)sender).CancellationPending) lock (e) e.Cancel = true;
 
+                    Console.WriteLine("Filling results for " + item.name + "...");
                     item.fillResults(svrs);
+                    Console.WriteLine("Saving results for " + item.name + "...");
                     writer.SaveItem(item);
                     bgWorker.ReportProgress(0);
 

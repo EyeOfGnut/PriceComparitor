@@ -203,8 +203,18 @@ namespace Price_Comparitor
         /// <summary>
         /// Write the information to the Excel file
         /// </summary>
+        delegate uint? UsedCell(uint? r, WorksheetPart wspt);
         private void saveExcelFile()
         {
+            // If the item has a row number, and the cells in that row aren't used, then use it. If the cells are used, bump it to the bottom.
+            UsedCell uc = (r, wspt) =>
+            {
+                Cell c = wspt.Worksheet.Descendants<Cell>().Where(cell => cell.CellReference == 'A' + r.ToString()).FirstOrDefault();
+                if (null == r || null == c) return null;
+                if (string.IsNullOrEmpty(c.InnerText)) return r;
+                return (uint)wspt.Worksheet.Descendants<Row>().Count() + 1;
+            };
+
             // Check if the user cancelled the job
             if (this._ct.IsCancellationRequested) return;
 
@@ -224,7 +234,10 @@ namespace Price_Comparitor
             // If the item doesn't have a row number assigned, put it in the bottom row.
             // This is a major bug in the works - what happens if it's assigned to the bottom row, and an
             // item is later added that *is* assigned a row, and it's that same row? Hmmm??
+                
+            //uint row = uc(item.RowNumber, wsPart) ?? (uint)wsPart.Worksheet.Descendants<Row>().Count() + 1;
             uint row = item.RowNumber ?? (uint)wsPart.Worksheet.Descendants<Row>().Count() + 1;
+
             Product.ProductInfo info;
             try
             {
