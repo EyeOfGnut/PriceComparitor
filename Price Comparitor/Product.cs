@@ -123,12 +123,14 @@ namespace Price_Comparitor
                 Parallel.ForEach(svrs, new Action<Server, ParallelLoopState>((Server svr, ParallelLoopState state) =>
                 {
                     if (cancel.IsCancellationRequested) state.Break();
-
-                    TreeNode resultsNode = buildResultsNode(svr);
-                    if (resultsNode != null)
+                    if (svr.Enabled)
                     {
-                        resultsNode.Name = svr.Servername;
-                        lock (c) c.Add(resultsNode);
+                        TreeNode resultsNode = buildResultsNode(svr);
+                        if (resultsNode != null)
+                        {
+                            resultsNode.Name = svr.Servername;
+                            lock (c) c.Add(resultsNode);
+                        }
                     }
                 }));
 
@@ -158,10 +160,15 @@ namespace Price_Comparitor
         /// <returns>returns the completed node, to add to the treeview</returns>
         private TreeNode buildResultsNode(Server svr)
         {
-            TreeNode[] nodeArray = checkAmazon(svr);
+            if (!cancel.IsCancellationRequested)
+            {
+                TreeNode[] nodeArray = checkAmazon(svr);
 
-            // Don't add a node for the Amazon server if the SKU isn't found
-            return (nodeArray != null && !cancel.IsCancellationRequested) ? new TreeNode(svr.Servername, nodeArray) : null;
+                // Don't add a node for the Amazon server if the SKU isn't found
+                return (nodeArray != null && !cancel.IsCancellationRequested) ? new TreeNode(svr.Servername, nodeArray) : null;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -235,6 +242,7 @@ namespace Price_Comparitor
         private TreeNode[] checkAmazon(Server svr)
         {
             HtmlAgilityPack.HtmlDocument doc = loadHtmlDocument(svr.SearchUrl + sku);
+            doc.OptionUseIdAttribute = true;
 
             HtmlNode node = doc.GetElementbyId("result_0"); // Get the first search result. This will be NULL if there were no results.
             List<TreeNode> results = null; ;
@@ -297,6 +305,7 @@ namespace Price_Comparitor
         /// <returns>List of one or two competitors, depending on if a preferred seller has the lowest price or not</returns>
         private List<Competitor> sortedResellers(List<Competitor> competitors)
         {
+            if (competitors.Count < 1) return competitors;
             Competitor lowest = null;
             Competitor primeNotLowest = null;
 
@@ -368,7 +377,34 @@ namespace Price_Comparitor
             }
 
             List<HtmlNode> nodeList = starter.findAllChildNodes(CLASSKEY, "olpOffer", false);
+#if DEBUG
+            foreach(HtmlNode node in nodeList)
+            {
+                HtmlNode n = node.findChildNode(CLASSKEY, "olpCondition", false);
+                if (n != null)
+                {
+                    if (!n.InnerHtml.Contains("Used")) // Skip the node if it's Used
+                    {
+                        Competitor c = new Competitor();
 
+                        //Get the price from the page
+                        c.Price = findPrice(node, competitors);
+
+                        //Get the Shipping from the page
+                        c.Shipping = findShippingInfo(node, competitors);
+
+                        // Get Preferred status of the reseller
+                        c.Preferred = (node.findChildNode(IMGKEY, "sip-prime-check-badge", false) != null);
+
+                        // Get URL of the reseller's logo
+                        c.LogoURL = findResellerLogo(node);
+
+                        // Add the info to the list of competitors
+                        competitors.Add(c);
+                    }
+                }
+            }
+#else
             Parallel.ForEach(nodeList, new Action<HtmlNode, ParallelLoopState>((HtmlNode node, ParallelLoopState state) => 
             {
                 if (cancel.IsCancellationRequested) state.Break();
@@ -381,24 +417,24 @@ namespace Price_Comparitor
                         Competitor c = new Competitor();
 
                         //Get the price from the page
-                        c.Price = findPrice(n, competitors);
+                        c.Price = findPrice(node, competitors);
 
                         //Get the Shipping from the page
-                        c.Shipping = findShippingInfo(n, competitors);
+                        c.Shipping = findShippingInfo(node, competitors);
 
                         // Get Preferred status of the reseller
                         c.Preferred = (node.findChildNode(IMGKEY, "sip-prime-check-badge", false) != null);
 
                         // Get URL of the reseller's logo
-                        c.LogoURL = findResellerLogo(n);
+                        c.LogoURL = findResellerLogo(node);
 
                         // Add the info to the list of competitors
                         lock (competitors) competitors.Add(c);
                     }
                 }
             }));
-            if (competitors == null || competitors.Count < 1) return null;
-            else return sortedResellers(competitors);
+#endif
+            return sortedResellers(competitors);
         }
 
         private float findPrice(HtmlNode node, List<Competitor> competitors)

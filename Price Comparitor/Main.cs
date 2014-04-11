@@ -102,7 +102,7 @@ namespace Price_Comparitor
                     if (((BackgroundWorker)sender).CancellationPending) lock (e) e.Cancel = true;
 
                     item.fillResults(svrs);
-                    writer.SaveItem(item);
+                    writer.SaveItem(item); // We're missing lines - does this need to be locked?
                     bgWorker.ReportProgress(0);
 
                     if (item.subTree.Count > 0)
