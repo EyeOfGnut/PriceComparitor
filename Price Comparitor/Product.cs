@@ -207,7 +207,8 @@ namespace Price_Comparitor
 
                 if (nd != null && !cancel.IsCancellationRequested)
                 {
-                    foreach (Competitor c in getResellers(nd))
+                    List<Competitor> cList = getResellers(nd) ?? new List<Competitor>();
+                    foreach (Competitor c in cList)
                     {
                         if (c.Name.Contains("Error"))
                             results.Add(new TreeNode(c.Name));
